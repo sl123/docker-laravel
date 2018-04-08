@@ -1,0 +1,52 @@
+version: '2'
+services:
+    nginx:
+      image: nginx:1.12-alpine
+      volumes:
+        - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+        - ./nginx/sites/:/etc/nginx/conf.d/
+        - /project/www/:/var/www/Projects/
+        - ./nginx/log/:/var/log/nginx/
+      ports:
+        - 80:80
+      links:
+        - 'php:songli-php'
+      restart: always
+    php:
+      build: ./php
+      volumes:
+        - /project/www/:/var/www/Projects/
+      ports:
+        - 9000:9000
+      links:
+        - 'mysql:songli-mysql'
+        - 'redis:songli-redis'
+      restart: on-failure
+
+    mysql:
+        image: mysql:5.6
+        environment:
+          TZ: 'Asia/Shanghai'
+          MYSQL_DATABASE: songli
+          MYSQL_USER: songli
+          MYSQL_PASSWORD: songli
+          MYSQL_ROOT_PASSWORD: root
+        volumes:
+          - ./mysql:/var/lib/mysql
+        ports:
+          - 3306:3306
+        restart: always
+
+    redis:
+        image: redis:3.2-alpine
+        ports:
+          - 6379:6379
+        volumes:
+          - ./redis:/data
+        restart: always
+
+
+
+
+
+
